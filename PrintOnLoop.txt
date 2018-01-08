@@ -1,0 +1,83 @@
+Sub PrintReport()
+Dim xPath As String
+xPath = Application.ActiveWorkbook.Path
+Application.ScreenUpdating = False
+
+'This makes the list start at the first center
+'This list needs to be set up for the reports that you want to create
+
+    Sheets("Center List").Select
+    Range("A2").Select
+    Selection.Copy
+    Sheets("Configuration").Select
+    Range("SelectCenter").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+'This adds the workbook
+
+    Sheets("Report").Select
+    Columns("A:L").Select
+    Selection.Copy
+    Workbooks.Add
+
+'This copies the data into the workbook and removes the formula calculations
+
+    ActiveSheet.Paste
+    Columns("A:L").Select
+    Selection.Copy
+    Range("A1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+'This saves and closes the file
+
+    Application.ActiveWorkbook.SaveAs Filename:=xPath & "\" & Sheets("Sheet1").Range("C2") & " Report" & ".xlsx"
+    Application.ActiveWorkbook.Close False
+    Sheets("Configuration").Select
+
+'This opens the orginal file again
+
+    Windows("Report.xlsm").Activate
+    Sheets("Center List").Select
+    
+'This loops through the center list and repeats the file add and copy
+
+    ActiveCell.Offset(1, 0).Select
+    While Not (IsEmpty(Selection.Value))
+        Selection.Copy
+        Sheets("Configuration").Select
+        Range("SelectCenter").Select
+        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+            :=False, Transpose:=False
+            
+'This makes everything copy. It is a repeat of the first file
+
+        Sheets("Report").Select
+        Columns("A:L").Select
+        Selection.Copy
+        Workbooks.Add
+        ActiveSheet.Paste
+        Columns("A:L").Select
+        Selection.Copy
+        Range("A1").Select
+        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+            :=False, Transpose:=False
+            
+        Application.ActiveWorkbook.SaveAs Filename:=xPath & "\" & Sheets("Sheet1").Range("C2") & " Report" & ".xlsx"
+        Application.ActiveWorkbook.Close False
+        Sheets("Configuration").Select
+        
+'This brings us back to the original document to grab the next center
+
+        Windows("ReportSplitter.xlsm").Activate
+        Sheets("Center List").Select
+        ActiveCell.Offset(1, 0).Select
+    Wend
+    Sheets("Configuration").Select
+    
+    
+'    Splitbook
+    
+Application.ScreenUpdating = True
+End Sub
